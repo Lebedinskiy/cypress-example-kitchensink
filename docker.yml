@@ -1,0 +1,12 @@
+jobs:
+ - name: build_job
+   plan:
+   - get: test_dockerfile
+     trigger: true
+resources:
+ - name: test_dockerfile
+   type: git
+   source:
+     uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
+     branch: master
+     paths: [Dockerfile]
