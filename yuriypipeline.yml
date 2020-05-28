@@ -18,6 +18,7 @@ jobs:
        trigger: true
      - get: dependency-cache
      - name: Run tests
+ - name: check dependencies    
    plan:
      - get: cypress-example-kitchensink
        trigger: true
