@@ -1,0 +1,10 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source: {repository: cypress/base, tag: 10}
+
+inputs:
+ - name: build-code
+
+run:
+  path: cypress-example-kitchensink/ci/build.sh
