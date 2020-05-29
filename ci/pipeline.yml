@@ -1,16 +1,14 @@
 jobs:
  - name: Deploy
-   serial: true
-   public: true
    plan:
      - get: my_repo
        trigger: true
      - task: build-code
-       file: cypress-example-kitchensink/ci/build.yml
+       file: cypress-example-kitchensink/Dockerfile
 resources:
  - name: my_repo
    type: git
    source:
-     uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
+     uri: git@github.com:Lebedinskiy/cypress-example-kitchensink.git
      branch: master
-     paths: [cypress-example-kitchensink/]
+     paths: [Dockerfile]
