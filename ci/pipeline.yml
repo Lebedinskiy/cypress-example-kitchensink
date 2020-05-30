@@ -24,6 +24,7 @@ jobs:
                ls -la
                cd my_repo
                ls -la
+               bash docker.sh
                docker -v
                docker build .
 resources:
