@@ -48,18 +48,10 @@ jobs:
              docker images
              whoami
              docker ps -a
-             docker build .
-
+             cp -R ./my-repo my-repo/workspace
 resources:
  - name: my_repo
    type: git
    source:
      uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
      branch: master
-
-# - name: yuriyrepo
-#   type: docker-image
-#   source:
-#     repository: https://hub.docker.com/repository/docker/professorlebedinskiy/conco
-#     username: professorlebedinskiy
-#     password: 123123123
