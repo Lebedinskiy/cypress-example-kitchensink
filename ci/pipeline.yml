@@ -100,8 +100,7 @@ jobs:
          platform: linux
          image_resource:
            type: docker-image
-           source:
-             repository: cypress/base
+           source: {repository: "cypress/base", tag: "10"}
          inputs:
          - name: my_repo
          outputs:
@@ -111,11 +110,30 @@ jobs:
            args:
            - -c
            - |
+             output_dir=ci
+
              node --version
              npm --version
+
              cd my_repo
-             npm install
-             npm start
+             ls -la
+
+             cat << EOF > "${output_dir}/Dockerfile"
+             FROM cypress/base:10
+             RUN node --version
+             RUN npm --version
+             WORKDIR /home/node/app
+             COPY package.json package-lock.json ./
+             COPY app ./app
+             COPY serve.json ./
+             COPY cypress.json cypress ./
+             COPY cypress ./cypress
+             ENV CI=1
+             RUN npm ci
+             RUN $(npm bin)/cypress verify
+             EOF
+
+             cp -R ./my_repo "${output_dir}/my_repo"
 
      - put: yuriy-dockerhub
        params:
@@ -132,6 +150,6 @@ resources:
  - name: yuriy-dockerhub
    type: docker-image
    source:
-     repository: https://hub.docker.com/repository/docker/professorlebedinskiy/conco
+     repository: {{docker-hub-repo}}
      username: {{docker-hub-user}}
      password: {{docker-hub-pass}}
