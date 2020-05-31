@@ -13,13 +13,18 @@ jobs:
          inputs:
          - name: my_repo
          outputs:
-         - name: workspace
+         - name: ci
          params:
            DOCKERFILE: my_repo/Dockerfile
            CONTEXT: .
 
          run:
            path: build
+
+     - put: yuriy-dockerhub
+       params:
+         build: Dockerfile
+
 
 
  - name: Test
@@ -36,22 +41,97 @@ jobs:
          inputs:
          - name: my_repo
          outputs:
-         - name: workspace
+         - name: ci
          run:
            path: /bin/sh
            args:
            - -c
            - |
+             output_dir=ci
+
+             cat << EOF > "${output_dir}/Dockerfile"
+             FROM cypress/base:10
+             RUN node --version
+             RUN npm --version
+             WORKDIR /home/node/app
+             COPY package.json package-lock.json ./
+             COPY app ./app
+             COPY serve.json ./
+             COPY cypress.json cypress ./
+             COPY cypress ./cypress
+             ENV CI=1
+             RUN npm ci
+             RUN $(npm bin)/cypress verify
+             EOF
+
+             cp -R ./my_repo "${output_dir}/my_repo"
+
+     - put: yuriy-dockerhub
+       params:
+         build: ci
+
+ - name: test-image
+   plan:
+   - get: yuriy-dockerhub
+     passed: [Test]
+     trigger: true
+   - get: my_repo
+     passed: [Test]
+   - task: run-tests
+     image: yuriy-dockerhub
+     config:
+       platform: linux
+       inputs:
+       - name: my_repo
+       run:
+         dir: my_repo
+         path: sh
+         args:
+         - exec
+         - rspec
+         - --help
+
+ - name: Build cypress
+   plan:
+     - get: my_repo
+       trigger: true
+     - task: build-project
+       config:
+         platform: linux
+         image_resource:
+           type: docker-image
+           source:
+             repository: cypress/base
+         inputs:
+         - name: my_repo
+         outputs:
+         - name: ci
+         run:
+           path: /bin/sh
+           args:
+           - -c
+           - |
+             node --version
+             npm --version
              cd my_repo
-             ls -la
-             docker -v
-             docker images
-             whoami
-             docker ps -a
-             cp -R ./my-repo my-repo/workspace
+             npm install
+             npm start
+
+     - put: yuriy-dockerhub
+       params:
+         build: ci
+
+
 resources:
  - name: my_repo
    type: git
    source:
      uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
      branch: master
+
+ - name: yuriy-dockerhub
+   type: docker-image
+   source:
+     repository: https://hub.docker.com/repository/docker/professorlebedinskiy/conco
+     username: {{docker-hub-user}}
+     password: {{docker-hub-pass}}
