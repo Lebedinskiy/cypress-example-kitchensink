@@ -115,9 +115,6 @@ jobs:
              node --version
              npm --version
 
-             cd my_repo
-             ls -la
-
              cat << EOF > "${output_dir}/Dockerfile"
              FROM cypress/base:10
              RUN node --version
@@ -133,12 +130,17 @@ jobs:
              RUN $(npm bin)/cypress verify
              EOF
 
-             cp -R ./my_repo "${output_dir}/my_repo"
+             cp -R ./my_repo/package.json "${output_dir}"
+             cp -R ./my_repo/app "${output_dir}"
+             cp -R ./my_repo/serve.json "${output_dir}"
+             cp -R ./my_repo/cypress.json "${output_dir}"
+             cp -R ./my_repo/cypress "${output_dir}o"
+             cd ci
+             ls -la
 
      - put: yuriy-dockerhub
-       params:
-         build: ci
-
+       params: { build: ci }
+       get_params: {rootfs: true}
 
 resources:
  - name: my_repo
