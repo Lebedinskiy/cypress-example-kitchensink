@@ -138,7 +138,7 @@ jobs:
              cd ci
              ls -la
 
-     - put: yuriy-dockerhub
+     - put: yuriy-image
        params: { build: ci }
        get_params: {rootfs: true}
 
@@ -153,5 +153,14 @@ resources:
    type: docker-image
    source:
      repository: {{docker-hub-repo}}
+     tag: test
      username: {{docker-hub-user}}
      password: {{docker-hub-pass}}
+
+ - name: yuriy-image
+   type: docker-image
+   source:
+     email: {{docker-hub-email}}
+     username: {{docker-hub-username}}
+     password: {{docker-hub-password}}
+     repository: {{docker-hub-username}}
