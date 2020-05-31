@@ -1,5 +1,5 @@
 jobs:
- - name: Deploy
+ - name: Build
    plan:
      - get: my_repo
        trigger: true
@@ -8,28 +8,58 @@ jobs:
          platform: linux
          image_resource:
            type: docker-image
+           source: 
+             repository: docker
+         inputs:
+         - name: my_repo
+         outputs:
+         - name: workspace
+         params:
+           DOCKERFILE: my_repo/Dockerfile
+           CONTEXT: .
+
+         run:
+           path: build
+
+
+ - name: Test
+   plan:
+     - get: my_repo
+       trigger: true
+     - task: test-code
+       config:
+         platform: linux
+         image_resource:
+           type: docker-image
            source:
-             repository: ubuntu
+             repository: docker
          inputs:
          - name: my_repo
          outputs:
          - name: workspace
          run:
-           path: /bin/bash
+           path: /bin/sh
            args:
-             - -c
-             - |
-               echo "Hi"
-               uname
-               ls -la
-               cd my_repo
-               ls -la
-               bash docker.sh
-               docker -v
-               docker build .
+           - -c
+           - |
+             cd my_repo
+             ls -la
+             docker -v
+             docker images
+             whoami
+             docker ps -a
+             docker build .
+
 resources:
  - name: my_repo
    type: git
    source:
      uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
      branch: master
+
+# - name: yuriyrepo
+#   type: docker-image
+#   source:
+#     repository: https://hub.docker.com/repository/docker/professorlebedinskiy/conco
+#     username: professorlebedinskiy
+#     password: 123123123
