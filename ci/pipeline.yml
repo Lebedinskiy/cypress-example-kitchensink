@@ -1,32 +1,4 @@
 jobs:
- - name: Build
-   plan:
-     - get: my_repo
-       trigger: true
-     - task: build-code
-       config:
-         platform: linux
-         image_resource:
-           type: docker-image
-           source: 
-             repository: docker
-         inputs:
-         - name: my_repo
-         outputs:
-         - name: ci
-         params:
-           DOCKERFILE: my_repo/Dockerfile
-           CONTEXT: .
-
-         run:
-           path: build
-
-     - put: yuriy-dockerhub
-       params:
-         build: Dockerfile
-
-
-
  - name: Test
    plan:
      - get: my_repo
@@ -92,6 +64,8 @@ jobs:
          - --help
 
  - name: Build cypress
+   public: true
+   serial: true
    plan:
      - get: my_repo
        trigger: true
@@ -140,7 +114,6 @@ jobs:
 
      - put: yuriy-image
        params: { build: ci }
-       get_params: {rootfs: true}
 
 resources:
  - name: my_repo
@@ -158,9 +131,8 @@ resources:
      password: {{docker-hub-pass}}
 
  - name: yuriy-image
-   type: docker-image
+   type: git
    source:
-     email: {{docker-hub-email}}
-     username: {{docker-hub-username}}
-     password: {{docker-hub-password}}
-     repository: {{docker-hub-username}}
+     uri: ssh://git@github.com:Lebedinskiy/yuriy-concourse.git
+     branch: master
+     private_key: {{private-key}}
