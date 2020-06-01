@@ -1,25 +1,4 @@
 jobs:
- - name: test-image
-   plan:
-   - get: yuriy-dockerhub
-     passed: [Test]
-     trigger: true
-   - get: my_repo
-     passed: [Test]
-   - task: run-tests
-     image: yuriy-dockerhub
-     config:
-       platform: linux
-       inputs:
-       - name: my_repo
-       run:
-         dir: my_repo
-         path: sh
-         args:
-         - exec
-         - rspec
-         - --help
-
  - name: Build
    public: true
    serial: true
