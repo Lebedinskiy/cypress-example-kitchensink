@@ -1,47 +1,4 @@
 jobs:
- - name: Test
-   plan:
-     - get: my_repo
-       trigger: true
-     - task: test-code
-       config:
-         platform: linux
-         image_resource:
-           type: docker-image
-           source:
-             repository: docker
-         inputs:
-         - name: my_repo
-         outputs:
-         - name: ci
-         run:
-           path: /bin/sh
-           args:
-           - -c
-           - |
-             output_dir=ci
-
-             cat << EOF > "${output_dir}/Dockerfile"
-             FROM cypress/base:10
-             RUN node --version
-             RUN npm --version
-             WORKDIR /home/node/app
-             COPY package.json package-lock.json ./
-             COPY app ./app
-             COPY serve.json ./
-             COPY cypress.json cypress ./
-             COPY cypress ./cypress
-             ENV CI=1
-             RUN npm ci
-             RUN $(npm bin)/cypress verify
-             EOF
-
-             cp -R ./my_repo "${output_dir}/my_repo"
-
-     - put: yuriy-dockerhub
-       params:
-         build: ci
-
  - name: test-image
    plan:
    - get: yuriy-dockerhub
@@ -63,7 +20,7 @@ jobs:
          - rspec
          - --help
 
- - name: Build cypress
+ - name: Build
    public: true
    serial: true
    plan:
@@ -108,12 +65,34 @@ jobs:
              cp -R ./my_repo/app "${output_dir}"
              cp -R ./my_repo/serve.json "${output_dir}"
              cp -R ./my_repo/cypress.json "${output_dir}"
-             cp -R ./my_repo/cypress "${output_dir}o"
+             cp -R ./my_repo/cypress "${output_dir}"
+             cp -R ./my_repo/package-lock.json "${output_dir}"
              cd ci
              ls -la
 
-     - put: yuriy-image
+     - put: ecr
        params: { build: ci }
+
+ - name: test
+   plan:
+   - get: ecr
+     passed: [Build]
+     trigger: true
+   - get: my-repo
+     passed: [Build]
+   - task: run-tests
+     image: ecr
+     config:
+       platform: linux
+       inputs:
+       - name: my-repo
+       run:
+         dir: my-repo
+         path: sh
+         args:
+         - node --version
+         - npm --version
+
 
 resources:
  - name: my_repo
@@ -122,17 +101,9 @@ resources:
      uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
      branch: master
 
- - name: yuriy-dockerhub
+ - name: ecr
    type: docker-image
    source:
-     repository: {{docker-hub-repo}}
-     tag: test
-     username: {{docker-hub-user}}
-     password: {{docker-hub-pass}}
-
- - name: yuriy-image
-   type: git
-   source:
-     uri: ssh://git@github.com:Lebedinskiy/yuriy-concourse.git
-     branch: master
-     private_key: {{private-key}}
+     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/concourse
+     access_key_id: {{AWS_ACCESS_KEY_ID}}
+     secret_access_key: {{AWS_SECRET_ACCESS_KEY}}
