@@ -1,6 +1,5 @@
 jobs:
  - name: Build
-   public: true
    serial: true
    plan:
      - get: my_repo
@@ -14,13 +13,13 @@ jobs:
          inputs:
          - name: my_repo
          outputs:
-         - name: ci
+         - name: workspace
          run:
            path: /bin/sh
            args:
            - -c
            - |
-             output_dir=ci
+             output_dir=workspace
 
              node --version
              npm --version
@@ -37,7 +36,6 @@ jobs:
              COPY cypress ./cypress
              ENV CI=1
              RUN npm ci
-             RUN $(npm bin)/cypress verify
              EOF
 
              cp -R ./my_repo/package.json "${output_dir}"
@@ -46,27 +44,28 @@ jobs:
              cp -R ./my_repo/cypress.json "${output_dir}"
              cp -R ./my_repo/cypress "${output_dir}"
              cp -R ./my_repo/package-lock.json "${output_dir}"
-             cd ci
+             cd workspace
              ls -la
 
      - put: ecr
-       params: { build: ci }
+       params: 
+         build: workspace
 
  - name: test
    plan:
    - get: ecr
      passed: [Build]
      trigger: true
-   - get: my-repo
+   - get: my_repo
      passed: [Build]
    - task: run-tests
      image: ecr
      config:
        platform: linux
        inputs:
-       - name: my-repo
+       - name: my_repo
        run:
-         dir: my-repo
+         dir: my_repo
          path: sh
          args:
          - node --version
@@ -83,6 +82,6 @@ resources:
  - name: ecr
    type: docker-image
    source:
-     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/concourse
-     access_key_id: {{AWS_ACCESS_KEY_ID}}
-     secret_access_key: {{AWS_SECRET_ACCESS_KEY}}
+     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
+     access_key_id: ((AWS_ACCESS_KEY))
+     secret_access_key: ((AWS_SECRET_KEY))
