@@ -85,3 +85,4 @@ resources:
      repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
+     region_name: ((AWS_REGION))
