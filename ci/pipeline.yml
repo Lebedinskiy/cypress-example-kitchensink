@@ -68,8 +68,34 @@ jobs:
          dir: my_repo
          path: sh
          args:
-         - node --version
-         - npm --version
+         - -c
+         - |
+           node --version
+           npm --version
+
+ - name: Deploy-to-prod
+   plan:
+   - get: ecr
+     passed: [test]
+     trigger: true
+   - put: Prod
+     params:
+       save: /home/ubuntu/image
+       save: true
+   - task: push-to-prod
+     image: ecr
+     config:
+       platform: linux
+       inputs:
+       - name: Prod
+       run:
+         path: sh
+         args:
+         - -exc
+         - |
+
+           ls Prod
+           docker-images
 
 
 resources:
@@ -86,3 +112,10 @@ resources:
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
+
+ - name: Prod
+   type: docker-image
+   source:
+     host: 18.156.192.252
+     user: ubuntu
+     private_key: ((private_key))
