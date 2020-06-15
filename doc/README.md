@@ -41,6 +41,8 @@ Setting up a Pipeline
 
 Grabbing a bare bones Concourse pipeline is a good way to start kicking the tires. Luckily, there are lots of examples to choose from in the Concourse repos.
 
+Note: If you need more examples for resource types you can visit https://github.com/concourse/concourse/wiki/Resource-Types
+
 In our case we will use my pipeline which located https://github.com/Lebedinskiy/cypress-example-kitchensink/blob/master/ci/pipeline.yml
 
 What this pipeline will do:
