@@ -1,7 +1,11 @@
 In this example, we will launch concourse using docker compose file and create CI/CD.
 First of all you need to run docker container with concourse, you can take official docker-compose file on https://github.com/concourse/concourse-docker/blob/master/docker-compose.yml 
 or you can use my file.
+
+
 command:  docker-compose up -d
+
+
 NOTE!  If you use external instance you will need to change your docker-compose file from CONCOURSE_EXTERNAL_URL: http://localhost:8080 
 to CONCOURSE_EXTERNAL_URL: http://your-ip-address:8080.
 
