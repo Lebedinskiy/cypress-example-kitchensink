@@ -1,4 +1,5 @@
 jobs:
+    # Get github repo, build docker image and put to aws ecr
  - name: Build
    serial: true
    plan:
@@ -62,6 +63,10 @@ jobs:
      image: ecr
      config:
        platform: linux
+       image_resource:
+         type: docker-image
+         source:
+           repository: amazonaws.com/repo
        inputs:
        - name: my_repo
        run:
@@ -73,30 +78,34 @@ jobs:
            node --version
            npm --version
 
+   #Get image and save to prod
  - name: Deploy-to-prod
    plan:
    - get: ecr
      passed: [test]
      trigger: true
-   - put: Prod
-     params:
-       save: /home/ubuntu/image
-       save: true
+   - get: my_repo
+     passed: [test]
    - task: push-to-prod
-     image: ecr
      config:
        platform: linux
+       image_resource:
+         type: docker-image
+         source:
+           repository: amazonaws.com/repo
        inputs:
-       - name: Prod
+       - name: my_repo
        run:
          path: sh
          args:
          - -exc
          - |
+           node --version
+           npm --version
 
-           ls Prod
-           docker-images
-
+   - put: Prod
+     params:
+       save: true
 
 resources:
  - name: my_repo
@@ -108,7 +117,7 @@ resources:
  - name: ecr
    type: docker-image
    source:
-     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
+     repository: amazonaws.com/repo
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
@@ -116,6 +125,7 @@ resources:
  - name: Prod
    type: docker-image
    source:
-     host: 18.156.192.252
-     user: ubuntu
-     private_key: ((private_key))
+     repository: amazonaws.com/deploy
+     access_key_id: ((AWS_ACCESS_KEY))
+     secret_access_key: ((AWS_SECRET_KEY))
+     region_name: ((AWS_REGION))
