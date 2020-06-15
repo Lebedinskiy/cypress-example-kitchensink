@@ -46,7 +46,7 @@ In our case we will use my pipeline which located https://github.com/Lebedinskiy
 What this pipeline will do:
 
 1. Get github repo
-2. Create Dockerfike
+2. Create Dockerfile
 3. Build docker image
 4. Push docker image to aws ecr
 5. Get our image and test him
