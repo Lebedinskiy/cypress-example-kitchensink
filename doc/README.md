@@ -15,7 +15,7 @@ Connecting to the Server
 Once the server is started, the web interface of the Concourse CI can be accessed by going to http://servers_public_IP:8080 in any browser.
 Log in using the username 'test' and password 'test'.
 
-To install the Concourse CLI (fly) on your system, click on the Linux logo to download, and run the following commands…
+To install the Concourse CLI (fly) on your system, click on the Linux logo to download, and run the following commandsâ€¦
 
 $ cd ~/Downloads/
 
@@ -66,7 +66,7 @@ $ fly -t ci check-resource --resource pipelinename/my_repo
 
 
 Note: The -t flag is a target alias and is required for almost every command.
-This alias comes in very handy when you’re targeting multiple concourse installations.
+This alias comes in very handy when youâ€™re targeting multiple concourse installations.
 
 Setting up a Pipeline
 
@@ -92,4 +92,4 @@ We need to set up aws ecs and connect with our deploy repo.
 
 # Pipeline result
 
-![Scheme](https://bitbucket.org/scrumlaunch/aws_councourse_cypress_pipeline/raw/bab52a64b4f3041559d6f0ffd47a1f955c1581c1/doc/output.PNG)
+![Scheme](https://raw.githubusercontent.com/Lebedinskiy/cypress-example-kitchensink/master/doc/output.PNG)
