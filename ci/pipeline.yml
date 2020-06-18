@@ -66,9 +66,7 @@ jobs:
        image_resource:
          type: docker-image
          source:
-           repository: amazonaws.com/repo
-       inputs:
-       - name: my_repo
+           repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
        run:
          dir: my_repo
          path: sh
@@ -83,49 +81,35 @@ jobs:
    plan:
    - get: ecr
      passed: [test]
-     trigger: true
    - get: my_repo
      passed: [test]
-   - task: push-to-prod
-     config:
-       platform: linux
-       image_resource:
-         type: docker-image
-         source:
-           repository: amazonaws.com/repo
-       inputs:
-       - name: my_repo
-       run:
-         path: sh
-         args:
-         - -exc
-         - |
-           node --version
-           npm --version
-
    - put: Prod
-     params:
-       save: true
+     params: 
+       build: my_repo
 
 resources:
  - name: my_repo
    type: git
+   icon: git
    source:
      uri: https://github.com/Lebedinskiy/cypress-example-kitchensink.git
      branch: master
 
  - name: ecr
    type: docker-image
+   icon: aws
    source:
-     repository: amazonaws.com/repo
+     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
 
+
  - name: Prod
    type: docker-image
+   icon: aws
    source:
-     repository: amazonaws.com/deploy
+     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/deploy
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
