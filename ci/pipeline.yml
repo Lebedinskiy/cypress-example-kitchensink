@@ -66,7 +66,7 @@ jobs:
        image_resource:
          type: docker-image
          source:
-           repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
+           repository: ecr-repo/ci
        run:
          dir: my_repo
          path: sh
@@ -76,11 +76,12 @@ jobs:
            node --version
            npm --version
 
-   #Get image and save to prod
+
  - name: Deploy-to-prod
    plan:
    - get: ecr
      passed: [test]
+     trigger: true
    - get: my_repo
      passed: [test]
    - put: Prod
@@ -99,7 +100,7 @@ resources:
    type: docker-image
    icon: aws
    source:
-     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/second
+     repository: ecr-repo/ci
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
@@ -109,7 +110,7 @@ resources:
    type: docker-image
    icon: aws
    source:
-     repository: 790135736964.dkr.ecr.eu-central-1.amazonaws.com/deploy
+     repository: ecr-repo/deploy
      access_key_id: ((AWS_ACCESS_KEY))
      secret_access_key: ((AWS_SECRET_KEY))
      region_name: ((AWS_REGION))
